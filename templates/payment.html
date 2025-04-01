@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .payment-container {
+            text-align: center;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .details {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .details p {
+            margin: 12px 0;
+            font-size: 16px;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .checkbox-container {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+
+        button {
+            padding: 12px 25px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        button:hover {
+            background-color: #219653;
+        }
+
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin: 10px 0;
+            display: none;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: -1% auto;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            max-width: 300px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .expiry-note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .expiry-countdown {
+            font-weight: bold;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .expiry-warning {
+            color: #e74c3c;
+            font-weight: bold;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        
+        #qr-code-container img {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #eee;
+            padding: 8px;
+        }
+        
+        .modal-content h3 {
+            margin-top: 5px;
+            font-size: 18px;
+        }
+        
+        .modal-content p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        
+        #confirm-payment {
+            margin-top: 15px;
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+        
+        #open-upi-btn {
+            margin-top: 10px;
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+
+        /* New style for screenshot message */
+        .screenshot-instruction {
+            background-color: #e8f4fd;
+            color: #2c3e50;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+            font-size: 14px;
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <h1>Payment Details</h1>
+        <div class="details">
+            <p><strong>Ticket Type:</strong> {{ ticket_type }}</p>
+            <p><strong>Mobile Number:</strong> {{ mobile }}</p>
+            <p><strong>Ticket Count:</strong> {{ ticket_count }}</p>
+            <p><strong>Total Price:</strong> <span class="highlight">₹{{ total_price }}</span></p>
+        </div>
+        
+        <h2>Proceed to Payment</h2>
+        <form id="payment-form">
+            <input type="hidden" name="total_price" value="{{ total_price }}">
+            <input type="hidden" name="ticket_type" value="{{ ticket_type }}">
+            <input type="hidden" name="ticket_count" value="{{ ticket_count }}">
+            <input type="hidden" name="mobile" value="{{ mobile }}">
+            
+            <div class="checkbox-container">
+                <input type="checkbox" id="confirm-price" name="confirm-price" required>
+                <label for="confirm-price">I agree to pay ₹{{ total_price }}</label>
+            </div>
+
+            <div id="error-message" class="error-message">
+                Please confirm the amount to proceed with payment.
+            </div>
+
+            <button type="button" id="pay-now-button">Pay Now</button>
+        </form>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qr-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Scan to Pay</h3>
+            <div id="qr-code-container" style="margin: 15px auto;"></div>
+            <p><strong>Amount:</strong> ₹<span id="qr-amount"></span></p>
+            <p><strong>Transaction ID:</strong> <span id="qr-transaction-id"></span></p>
+            <div id="expiry-display"></div>
+            <div id="payment-status" class="payment-pending"></div>
+            <button id="confirm-payment" class="btn">I've Paid</button>
+            <!-- New screenshot instruction div -->
+            <div id="screenshot-instruction" class="screenshot-instruction">
+                Kindly show payment screenshot at reception and get your ticket
+            </div>
+            <div id="payment-status" style="margin-top: 10px;"></div>
+            <button id="open-upi-btn" class="btn" style="display: none; background-color: #3498db;">
+                Open UPI App
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global variable to store the polling interval
+        let pollInterval;
+    
+        document.getElementById('pay-now-button').addEventListener('click', function() {
+            const checkbox = document.getElementById('confirm-price');
+            const errorMessage = document.getElementById('error-message');
+            
+            if (checkbox.checked) {
+                errorMessage.style.display = 'none';
+                generateQRCode();
+            } else {
+                errorMessage.style.display = 'block';
+            }
+        });
+    
+        async function generateQRCode() {
+            const form = document.getElementById('payment-form');
+            const formData = new FormData(form);
+            
+            try {
+                const response = await fetch('/generate-qr', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Display QR code
+                    const qrContainer = document.getElementById('qr-code-container');
+                    qrContainer.innerHTML = `
+                        <img src="data:image/png;base64,${data.qr_code}" 
+                             alt="UPI QR Code">
+                    `;
+                    
+                    // Set payment details
+                    document.getElementById('qr-amount').textContent = data.amount;
+                    document.getElementById('qr-transaction-id').textContent = data.transaction_id;
+                    
+                    // Start countdown timer
+                    startExpiryCountdown(data.expires_at);
+                    
+                    // Show UPI app button
+                    const upiBtn = document.getElementById('open-upi-btn');
+                    upiBtn.style.display = 'inline-block';
+                    upiBtn.onclick = function() {
+                        window.location.href = data.upi_uri;
+                        setTimeout(() => {
+                            alert('Please complete the payment in your UPI app');
+                        }, 1000);
+                    };
+                    
+                    // Show modal
+                    document.getElementById('qr-modal').style.display = 'block';
+                    
+                    // Start polling for payment status
+                    startPaymentPolling(data.transaction_id);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate QR code. Please try again.');
+            }
+        }
+    
+        function startPaymentPolling(transactionId) {
+            // Clear any existing polling
+            if (pollInterval) {
+                clearInterval(pollInterval);
+            }
+            
+            // Start new polling
+            pollInterval = setInterval(() => {
+                checkPaymentStatus(transactionId);
+            }, 5000); // Check every 5 seconds
+        }
+    
+        function startExpiryCountdown(expiresAt) {
+            const expiryDisplay = document.getElementById('expiry-display');
+            const confirmBtn = document.getElementById('confirm-payment');
+            
+            const updateCountdown = () => {
+                const now = new Date();
+                const expiry = new Date(expiresAt);
+                const diff = expiry - now;
+                
+                if (diff <= 0) {
+                    expiryDisplay.innerHTML = '<p class="expiry-warning">QR Code expired!</p>';
+                    if (confirmBtn) confirmBtn.disabled = true;
+                    clearInterval(pollInterval); // Stop polling if QR expired
+                    
+                    // Update status to expired in backend
+                    const transactionId = document.getElementById('qr-transaction-id').textContent;
+                    fetch('/update-payment-status', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            transaction_id: transactionId,
+                            status: 'EXPIRED'
+                        })
+                    });
+                    return;
+                }
+                
+                const minutes = Math.floor(diff / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                
+                if (minutes < 2) {
+                    expiryDisplay.innerHTML = `
+                        <p class="expiry-countdown" style="color: orange;">
+                            Expires in: ${minutes}m ${seconds}s
+                        </p>
+                    `;
+                } else {
+                    expiryDisplay.innerHTML = `
+                        <p class="expiry-countdown" style="color: green;">
+                            Expires in: ${minutes}m ${seconds}s
+                        </p>
+                    `;
+                }
+                
+                setTimeout(updateCountdown, 1000);
+            };
+            
+            updateCountdown();
+        }
+    
+        // Close modal when clicking X
+        document.querySelector('.close').addEventListener('click', function() {
+            document.getElementById('qr-modal').style.display = 'none';
+            if (pollInterval) {
+                clearInterval(pollInterval); // Stop polling when modal is closed
+            }
+        });
+    
+    
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target == document.getElementById('qr-modal')) {
+                document.getElementById('qr-modal').style.display = 'none';
+                if (pollInterval) {
+                    clearInterval(pollInterval); // Stop polling when modal is closed
+                }
+            }
+        });
+
+        // async function checkPaymentStatus(transactionId) {
+        //     try {
+        //         const response = await fetch(`/check-payment-status/${transactionId}`);
+        //         const data = await response.json();
+                
+        //         if (data.status === 'COMPLETED') {
+        //             // Show success UI
+        //             document.getElementById('payment-status').innerHTML = 
+        //                 '<p style="color: green;">Payment Verified!</p>';
+                    
+        //             // Show ticket download button
+        //             document.getElementById('download-ticket').style.display = 'block';
+                    
+        //             // Stop polling
+        //             clearInterval(pollInterval);
+                    
+        //             return true;
+        //         }
+        //         return false;
+        //     } catch (error) {
+        //         console.error("Payment check failed:", error);
+        //         return false;
+        //     }
+        // }
+
+
+        async function checkPaymentStatus(transactionId) {
+            try {
+                console.log("Checking payment status for:", transactionId); // Debug log
+                
+                const response = await fetch(`/check-payment/${transactionId}`);
+                
+                console.log("Response status:", response.status); // Debug log
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log("Response data:", data); // Debug log
+                
+                if (data.success) {
+                    if (data.status === 'SUCCESS') {
+                        document.getElementById('payment-status').innerHTML = 
+                            '<p style="color: green; font-weight: bold;">Payment Successful!</p>';
+                        document.getElementById('screenshot-instruction').style.display = 'block';
+                        if (pollInterval) clearInterval(pollInterval);
+                        return true;
+                    } else {
+                        document.getElementById('payment-status').innerHTML = 
+                            `<p style="color: orange;">Status: ${data.status}</p>`;
+                        return false;
+                    }
+                } else {
+                    document.getElementById('payment-status').innerHTML = 
+                        `<p style="color: red;">Error: ${data.message || 'Unknown error'}</p>`;
+                    return false;
+                }
+            } catch (error) {
+                console.error("Payment check failed:", error);
+                document.getElementById('payment-status').innerHTML = 
+                    `<p style="color: red;">Error checking status: ${error.message}</p>`;
+                return false;
+            }
+        }
+        // Add this event listener near your other event listeners
+        document.getElementById('confirm-payment').addEventListener('click', function() {
+            const transactionId = document.getElementById('qr-transaction-id').textContent;
+            const screenshotInstruction = document.getElementById('screenshot-instruction');
+            
+            // First check if payment was actually completed
+            checkPaymentStatus(transactionId).then(isPaid => {
+                if (isPaid) {
+                    screenshotInstruction.style.display = 'block';
+                    // You might also want to disable the button after click
+                    this.disabled = true;
+                    this.textContent = 'Payment Verified';
+                } else {
+                    // If payment isn't verified yet, show a message
+                    alert('Payment not yet verified. Please wait a moment and try again, or show your payment screenshot at reception and collect your ticket.');
+                }
+            });
+        });
+
+        // Modify your existing checkPaymentStatus function to return a promise
+        async function checkPaymentStatus(transactionId) {
+            try {
+                // This matches your Flask route /check-payment/<transaction_id>
+                const response = await fetch(`/check-payment/${transactionId}`);
+                const data = await response.json();
+                
+                if (data.success && data.status === 'SUCCESS') {  // Match your backend response structure
+                    // Show success UI
+                    document.getElementById('payment-status').innerHTML = 
+                        '<p style="color: green; font-weight: bold;">Payment Successful!</p>';
+                    
+                    // Show the screenshot instruction
+                    document.getElementById('screenshot-instruction').style.display = 'block';
+                    
+                    // Stop polling
+                    if (pollInterval) clearInterval(pollInterval);
+                    
+                    return true;
+                } else if (data.success && data.status === 'PENDING') {
+                    document.getElementById('payment-status').innerHTML = 
+                        '<p style="color: orange;">Payment Pending...</p>';
+                    return false;
+                } else {
+                    document.getElementById('payment-status').innerHTML = 
+                        '<p style="color: red;">Payment Not Verified</p>';
+                    return false;
+                }
+            } catch (error) {
+                console.error("Payment check failed:", error);
+                document.getElementById('payment-status').innerHTML = 
+                    '<p style="color: red;">Error checking payment status</p>';
+                return false;
+            }
+        }
+
+        async function verifyPayment(transactionId) {
+            try {
+                const response = await fetch(`/verify-payment/${transactionId}`);
+                const data = await response.json();
+                
+                if (data.success && data.paid) {
+                    // Payment verified
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error("Verification failed:", error);
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>

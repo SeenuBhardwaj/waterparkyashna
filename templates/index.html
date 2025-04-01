@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yashna Waterpark | Splash Into Fun</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0066cc;
+            --secondary: #00ccff;
+            --accent: #ff9a3c;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+        
+        /* Water Droplet Animation */
+        .water-droplets {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: waterRipple 15s infinite linear;
+        }
+        
+        header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            position: relative;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            background: linear-gradient(to right, white, #e0f7fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Navigation */
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: relative;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            padding: 0.7rem 1.5rem;
+            transition: var(--transition);
+            position: relative;
+            font-weight: 500;
+            border-radius: 50px;
+            background-color: rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+        }
+        
+        nav ul li a:hover {
+            background-color: rgba(255,255,255,0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        nav ul li a.active {
+            background-color: rgba(255,255,255,0.3);
+            font-weight: 600;
+        }
+        
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+            position: relative;
+        }
+        
+        /* About Section */
+        #about {
+            text-align: center;
+            padding: 3rem 2rem;
+            margin: 2rem 0;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #about::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+        }
+        
+        #about h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            position: relative;
+            display: inline-block;
+        }
+        
+        #about h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+        
+        #about p {
+            font-size: 1.2rem;
+            color: #555;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Slideshow */
+        .slideshow-container {
+            position: relative;
+            max-width: 100%;
+            margin: 3rem auto;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            aspect-ratio: 16/9;
+        }
+        
+        .mySlides {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        .mySlides.active {
+            opacity: 1;
+        }
+        
+        .mySlides img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            vertical-align: middle;
+        }
+        
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: 60px;
+            height: 60px;
+            margin-top: -30px;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            transition: var(--transition);
+            border-radius: 50%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            z-index: 10;
+        }
+        
+        .prev {
+            left: 20px;
+        }
+        
+        .next {
+            right: 20px;
+        }
+        
+        .prev:hover, .next:hover {
+            background-color: rgba(0,0,0,0.8);
+            transform: scale(1.1);
+        }
+        
+        /* Location Section */
+        #location {
+            margin: 4rem 0;
+            padding: 2.5rem;
+            background-color: white;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        #location h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+        
+        #location p {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        #location iframe {
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+            border: none;
+            border-radius: 8px;
+            margin: 0 auto;
+            display: block;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            text-align: center;
+            padding: 3rem 1.5rem;
+            margin-top: 4rem;
+            position: relative;
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%230066cc" opacity=".25"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" fill="%230066cc" opacity=".5"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%230066cc"/></svg>');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        
+        footer p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .social-links a {
+            color: white;
+            font-size: 1.5rem;
+            transition: var(--transition);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .social-links a:hover {
+            background-color: var(--accent);
+            transform: translateY(-5px);
+        }
+        
+        /* Animations */
+        @keyframes waterRipple {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 1024px) {
+            header h1 {
+                font-size: 2.4rem;
+            }
+            
+            #about h2 {
+                font-size: 2.2rem;
+            }
+            
+            #location h3 {
+                font-size: 1.8rem;
+            }
+            
+            .slideshow-container {
+                aspect-ratio: 3/2;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            nav ul {
+                gap: 0.8rem;
+            }
+            
+            nav ul li a {
+                padding: 0.6rem 1.2rem;
+                font-size: 1rem;
+            }
+            
+            #about, #location {
+                padding: 2rem 1.5rem;
+            }
+            
+            #about h2 {
+                font-size: 1.8rem;
+            }
+            
+            #location h3 {
+                font-size: 1.6rem;
+            }
+            
+            #location iframe {
+                height: 350px;
+            }
+            
+            .prev, .next {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.6rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            nav ul li a {
+                width: 100%;
+                text-align: center;
+            }
+            
+            #about h2 {
+                font-size: 1.5rem;
+            }
+            
+            #about p {
+                font-size: 1rem;
+            }
+            
+            #location h3 {
+                font-size: 1.4rem;
+            }
+            
+            #location p {
+                font-size: 1rem;
+            }
+            
+            #location iframe {
+                height: 250px;
+            }
+            
+            .prev, .next {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+        }
+
+        .whatsapp-enquiry {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 9999;
+        }
+
+        .whatsapp-enquiry a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 25px;
+            background-color: #25D366;
+            color: white !important;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+            transition: all 0.3s ease;
+            transform: translateY(0);
+            font-size: 16px;
+            animation: pulse 2s infinite;
+        }
+
+        .whatsapp-enquiry a:hover {
+            background-color: #128C7E;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(18, 140, 126, 0.5);
+        }
+
+        .fa-whatsapp {
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .whatsapp-enquiry a:hover .fa-whatsapp {
+            transform: rotate(15deg);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .whatsapp-enquiry {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .whatsapp-enquiry a {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Water Droplet Animation Background -->
+    <div class="water-droplets"></div>
+    
+    <header>
+        <h1>Welcome to Yashna Waterpark</h1>
+        <nav>
+            <ul>
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/book-ticket">Book Now</a></li>
+                <li><a href="/photos">Gallery</a></li>
+                <li><a href="/reviews">Reviews</a></li>
+                <li><a href="/contact-us">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home">
+            <!-- About Section -->
+            <section id="about">
+                <h2>About Yashna Waterpark</h2>
+                <p>Experience the ultimate water adventure at Rajasthan's premier destination for family fun and thrilling water rides. With world-class attractions and impeccable safety standards, we create unforgettable memories for visitors of all ages.</p>
+            </section>
+
+            <!-- Slideshow Container -->
+            <div class="slideshow-container">
+                <!-- Slides -->
+                <div class="mySlides active">
+                    <img src="{{ url_for('static', filename='images/image1.jpeg') }}" alt="Thrilling Water Slides">
+                </div>
+
+                <div class="mySlides">
+                    <img src="{{ url_for('static', filename='images/image2.jpeg') }}" alt="Wave Pool Fun">
+                </div>
+
+                <div class="mySlides">
+                    <img src="{{ url_for('static', filename='images/image3.jpeg') }}" alt="Family Adventure Zone">
+                </div>
+
+                <div class="mySlides">
+                    <img src="{{ url_for('static', filename='images/image4.jpeg') }}" alt="Lazy River Relaxation">
+                </div>
+
+                <div class="mySlides">
+                    <img src="{{ url_for('static', filename='images/image5.jpeg') }}" alt="Kids Play Area">
+                </div>
+
+                <div class="mySlides">
+                    <img src="{{ url_for('static', filename='images/image6.jpeg') }}" alt="Beautiful Waterpark Views">
+                </div>
+
+                <!-- Navigation Arrows -->
+                <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                <a class="next" onclick="plusSlides(1)">&#10095;</a>
+            </div>
+
+            <!-- Location Section -->
+            <section id="location">
+                <h3>Our Location</h3>
+                <p>Find us at this prime location in Sikar, Rajasthan for a day full of splashes and laughter</p>
+                
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1767.5011523522983!2d75.17736019997032!3d27.624445276230237!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396cbbbbfb7e6cc9%3A0x26e6679235393a46!2sCENTURY%20WATER%20PARK-SIKAR!5e0!3m2!1sen!2sin!4v1743347078753!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </section>
+        </section>
+    </main>
+    <div class="whatsapp-enquiry">
+        <a href="{{ url_for('whatsapp_contact_page') }}" target="_blank">
+        <i class="fab fa-whatsapp"></i> WhatsApp Us
+        </a>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Yashna Waterpark. All rights reserved.</p>
+        <div class="social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        // JavaScript for the slideshow
+        let slideIndex = 0;
+        const slides = document.getElementsByClassName("mySlides");
+        
+        function showSlides() {
+            // Hide all slides
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].classList.remove("active");
+            }
+            
+            // Increment index
+            slideIndex++;
+            if (slideIndex > slides.length) {
+                slideIndex = 1;
+            }
+            
+            // Show current slide
+            slides[slideIndex-1].classList.add("active");
+            
+            // Change slide every 5 seconds
+            setTimeout(showSlides, 5000);
+        }
+        
+        function plusSlides(n) {
+            // Hide all slides
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].classList.remove("active");
+            }
+            
+            // Update index
+            slideIndex += n;
+            if (slideIndex > slides.length) {
+                slideIndex = 1;
+            } else if (slideIndex < 1) {
+                slideIndex = slides.length;
+            }
+            
+            // Show new slide
+            slides[slideIndex-1].classList.add("active");
+            
+            // Reset timer
+            clearTimeout(slideTimer);
+            slideTimer = setTimeout(showSlides, 5000);
+        }
+        
+        // Start slideshow
+        let slideTimer = setTimeout(showSlides, 5000);
+        
+        // Create water droplet animation
+        function createWaterDroplets() {
+            const container = document.querySelector('.water-droplets');
+            const dropCount = 30;
+            
+            for (let i = 0; i < dropCount; i++) {
+                const drop = document.createElement('div');
+                drop.style.position = 'absolute';
+                drop.style.width = Math.random() * 10 + 5 + 'px';
+                drop.style.height = Math.random() * 20 + 10 + 'px';
+                drop.style.backgroundColor = 'rgba(0, 102, 204, 0.3)';
+                drop.style.borderRadius = '50% 50% 50% 50% / 60% 60% 40% 40%';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.top = Math.random() * 100 + '%';
+                drop.style.opacity = Math.random() * 0.5 + 0.1;
+                drop.style.animation = `fall ${Math.random() * 5 + 5}s linear infinite`;
+                drop.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(drop);
+            }
+            
+            // Add CSS for animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fall {
+                    0% { transform: translateY(-100vh) rotate(0deg); }
+                    100% { transform: translateY(100vh) rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Initialize water droplets
+        document.addEventListener('DOMContentLoaded', createWaterDroplets);
+    </script>    
+</body>
+</html>

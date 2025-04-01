@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    <style>
+
+        .whatsapp-enquiry {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 9999;
+        }
+
+        .whatsapp-enquiry a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 25px;
+            background-color: #25D366;
+            color: white !important;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+            transition: all 0.3s ease;
+            transform: translateY(0);
+            font-size: 16px;
+            animation: pulse 2s infinite;
+        }
+
+        .whatsapp-enquiry a:hover {
+            background-color: #128C7E;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(18, 140, 126, 0.5);
+        }
+
+        .fa-whatsapp {
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .whatsapp-enquiry a:hover .fa-whatsapp {
+            transform: rotate(15deg);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .whatsapp-enquiry {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .whatsapp-enquiry a {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .contact-section {
+            background: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .contact-section h2 {
+            color: #3498db;
+            margin-top: 0;
+        }
+        .contact-info {
+            margin-top: 15px;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .contact-item i {
+            margin-right: 10px;
+            color: #3498db;
+            width: 20px;
+            text-align: center;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Contact Us</h1>
+        
+        <div class="contact-section">
+            <h2><i class="fas fa-headset"></i> General Enquiries</h2>
+            <p>For general questions, product information, or other non-urgent matters:</p>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>Phone: <a href="tel:+014145234">+014145234</a></span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>Email: <a href="mailto:yashnawaterpark.com">yashnawaterpark12@gmail.com</a></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="contact-section">
+            <h2><i class="fas fa-exclamation-triangle"></i> Staff Complaints</h2>
+            <p>For complaints regarding staff behavior, service issues, or other concerns:</p>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>Phone: <a href="tel:+918607564817">+91 (860) 756 4817</a></span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>Email: <a href="mailto:parmodyadav18251@gmail.com">parmodyadav18251@gmail.com </a></span>
+                </div>
+            </div>
+        </div>
+        <div class="whatsapp-enquiry">
+            <a href="{{ url_for('whatsapp_contact_page') }}" target="_blank">
+            <i class="fab fa-whatsapp"></i> WhatsApp Us
+            </a>
+        </div>
+        
+        <div class="contact-section">
+            <h2><i class="fas fa-map-marker-alt"></i> Our Location</h2>
+            <p>You can also visit us at our office during working hours:</p>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-building"></i>
+                    <span>Piprali Rd,Behind Allen Coaching,<br>Dhobiyon Ka Mohalla<br>Rajasthan 332001</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Working Hours: Monday-Friday, 10:00 AM - 6:00 PM <br>
+                    Working Hours: Saturday-Sunday, 09:00 AM - 7:00 PM</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

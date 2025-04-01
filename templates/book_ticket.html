@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Ticket</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #0066cc, #00ccff);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        form {
+            display: grid;
+            gap: 1.2rem;
+        }
+        
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 2px rgba(0,102,204,0.2);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #0066cc, #00ccff);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 1.1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        #ticket-prices {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        
+        #ticket-prices h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        
+        #ticket-prices ul {
+            padding-left: 1.2rem;
+            margin: 0.5rem 0 0;
+        }
+        
+        #ticket-prices li {
+            margin-bottom: 0.3rem;
+        }
+        
+        #total-price {
+            background: #e6f7ff;
+            padding: 1rem;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        #total-price h3 {
+            margin: 0;
+            color: #0066cc;
+        }
+        
+        #calculated-price {
+            font-size: 1.3rem;
+            color: #006600;
+        }
+        
+        .error {
+            color: #ff0000;
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+            display: none;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            main {
+                margin: 1rem;
+                padding: 1rem;
+            }
+            
+            header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Book Your Ticket</h1>
+    </header>
+    <main>
+        <form action="/book-ticket" method="POST" onsubmit="return validateForm()">
+            <!-- Hidden fields for server submission -->
+            <input type="hidden" id="hidden-ticket-type" name="hidden-ticket-type">
+            <input type="hidden" id="hidden-total-price" name="hidden-total-price">
+
+            <!-- Ticket Prices Section -->
+            <div id="ticket-prices">
+                <h3>Ticket Prices:</h3>
+                <ul>
+                    <li>Kids: ₹499</li>
+                    <li>Single: ₹899</li>
+                    <li>Couple: ₹1599</li>                   
+                    <li>Couple + Kid: ₹1999</li>
+                    <li>Defence Discount: 50% off</li>
+                </ul>
+            </div>
+
+            <div>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required placeholder="Enter Your Name">
+            </div>
+
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required placeholder="Enter Your Email">
+            </div>
+
+            <div>
+                <label for="mobile">Mobile Number:</label>
+                <input type="tel" id="mobile" name="mobile" required placeholder="Enter 10-digit mobile number" 
+                       pattern="[6-9][0-9]{9}" maxlength="10">
+                <div id="mobile-error" class="error">Please enter a valid 10-digit mobile number</div>
+            </div>
+
+            <div>
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+                <div id="date-error" class="error">Please select a future date</div>
+            </div>
+
+            <!-- Ticket Type Selection -->
+            <div>
+                <label for="ticket-type">Ticket Type:</label>
+                <select id="ticket-type" name="ticket-type" required>
+                    <option value="" disabled selected>Select ticket type</option>
+                    <option value="single">Single (₹899)</option>
+                    <option value="couple">Couple (₹1599)</option>
+                    <option value="kids">Kids (₹499)</option>
+                    <option value="couple+kid">Couple + Kid (₹1999)</option>
+                    <option value="defence">Defence (50% off on Single)</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="tickets">Number of Tickets:</label>
+                <input type="number" id="tickets" name="tickets" required min="1" value="1">
+            </div>
+
+            <!-- Display Total Price -->
+            <div id="total-price">
+                <h3>Total Price: <span id="calculated-price">₹0</span></h3>
+            </div>
+
+            <button type="submit">Book Now</button>
+        </form>
+    </main>
+
+    <script>
+        // Set minimum date to today
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').min = today;
+            
+            // Calculate initial total
+            calculateTotal();
+        });
+
+        // Calculate total price when inputs change
+        document.getElementById('tickets').addEventListener('input', calculateTotal);
+        document.getElementById('ticket-type').addEventListener('change', calculateTotal);
+
+        function calculateTotal() {
+            const ticketType = document.getElementById('ticket-type').value;
+            const numberOfTickets = parseInt(document.getElementById('tickets').value) || 0;
+
+            let pricePerTicket = 0;
+            switch (ticketType) {
+                case 'kids':
+                    pricePerTicket = 499;
+                    break;
+                case 'single':
+                    pricePerTicket = 899;
+                    break;
+                case 'couple':
+                    pricePerTicket = 1599;
+                    break;                
+                case 'couple+kid':
+                    pricePerTicket = 1999;
+                    break;
+                case 'defence':
+                    pricePerTicket = 899 * 0.5; // 50% discount
+                    break;
+                default:
+                    pricePerTicket = 0;
+            }
+
+            const totalPrice = pricePerTicket * numberOfTickets;
+            document.getElementById('calculated-price').textContent = `₹${totalPrice}`;
+            
+            // Update hidden fields
+            document.getElementById('hidden-ticket-type').value = ticketType;
+            document.getElementById('hidden-total-price').value = totalPrice;
+        }
+
+        // Form validation
+        function validateForm() {
+            let isValid = true;
+            
+            // Mobile number validation
+            const mobile = document.getElementById('mobile').value;
+            const mobileError = document.getElementById('mobile-error');
+            if (!/^[6-9]\d{9}$/.test(mobile)) {
+                mobileError.style.display = 'block';
+                isValid = false;
+            } else {
+                mobileError.style.display = 'none';
+            }
+            
+            // Date validation
+            const selectedDate = new Date(document.getElementById('date').value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dateError = document.getElementById('date-error');
+            
+            if (selectedDate < today) {
+                dateError.style.display = 'block';
+                isValid = false;
+            } else {
+                dateError.style.display = 'none';
+            }
+            
+            return isValid;
+        }
+    </script>
+</body>
+</html>
