@@ -352,5 +352,5 @@ def payment_success():
     return render_template('payment_success.html')
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 8080))  # Use Render's assigned port
-    app.run(debug=True, port=8080)
+    port = int(os.environ.get("PORT", 5000))  # Use Render’s assigned port
+    app.run(host='0.0.0.0', port=port)
