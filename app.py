@@ -8,7 +8,8 @@ from datetime import datetime, timedelta
 from flask_mysqldb import MySQL
 import os
 
-app = Flask(__name__, template_folder='../templates', static_folder='../static')
+# app = Flask(__name__, template_folder='../templates', static_folder='../static')
+app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Change this!
 
 # MySQL Configuration
