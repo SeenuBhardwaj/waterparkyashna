@@ -79,10 +79,10 @@ def book_ticket():
         ticket_type = request.form.get('ticket-type')
         tickets = request.form.get('tickets')
         is_defence = request.form.get('is_defence', 'off') == 'on'
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO tickets (name, email, date, tickets, mobile) VALUES (%s, %s, %s, %s, %s)", (name, email, date, tickets, mobile))
-        mysql.connection.commit()
-        cur.close()
+        # cur = mysql.connection.cursor()
+        # cur.execute("INSERT INTO tickets (name, email, date, tickets, mobile) VALUES (%s, %s, %s, %s, %s)", (name, email, date, tickets, mobile))
+        # mysql.connection.commit()
+        # cur.close()
         
         # Store in session for payment page
         session['booking_data'] = {
@@ -162,14 +162,14 @@ def generate_qr():
         buffer.seek(0)
         
         # Save to database
-        cur = mysql.connection.cursor()
-        cur.execute("""
-            INSERT INTO payments 
-            (transaction_id, amount, mobile, ticket_type, ticket_count, status, expires_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (transaction_id, total_price, mobile, ticket_type, ticket_count, 'COMPLETED', expires_at))
-        mysql.connection.commit()
-        cur.close()
+        # cur = mysql.connection.cursor()
+        # cur.execute("""
+        #     INSERT INTO payments 
+        #     (transaction_id, amount, mobile, ticket_type, ticket_count, status, expires_at)
+        #     VALUES (%s, %s, %s, %s, %s, %s, %s)
+        # """, (transaction_id, total_price, mobile, ticket_type, ticket_count, 'COMPLETED', expires_at))
+        # mysql.connection.commit()
+        # cur.close()
 
         print(jsonify({
             'success': True,
