@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -225,7 +225,7 @@
     </div>
 
     <!-- QR Code Modal -->
-<!--     <div id="qr-modal" class="modal">
+    <div id="qr-modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h3>Scan to Pay</h3>
@@ -236,7 +236,7 @@
             <div id="payment-status" class="payment-pending"></div>
             <button id="confirm-payment" class="btn">I've Paid</button>
             <!-- New screenshot instruction div -->
-<!--             <div id="screenshot-instruction" class="screenshot-instruction">
+            <div id="screenshot-instruction" class="screenshot-instruction">
                 Kindly show payment screenshot at reception and get your ticket
             </div>
             <div id="payment-status" style="margin-top: 10px;"></div>
@@ -246,9 +246,9 @@
         </div>
     </div>
 
-    <script> --> -->
+    <script>
         // Global variable to store the polling interval
-<!--         let pollInterval;
+         let pollInterval;
     
         document.getElementById('pay-now-button').addEventListener('click', function() {
             const checkbox = document.getElementById('confirm-price');
@@ -533,57 +533,8 @@
         }
     </script>
 </body>
-</html> --> -->
+</html> -->
 
 
 
 
-
-@app.route('/generate-qr', methods=['POST'])
-def generate_qr():
-    try:
-        data = request.form
-        amount = data.get('total_price')
-        mobile = data.get('mobile')
-        ticket_type = data.get('ticket_type')
-        
-        # Generate UPI payment URL
-        upi_id = "8607564817@upi"  # Replace with your UPI ID
-        transaction_id = f"TXN{int(time.time())}"
-        payment_url = f"upi://pay?pa={upi_id}&pn=Event+Organizer&am={amount}&tn=Event+Ticket+({ticket_type})&tid={transaction_id}"
-        
-        # Generate QR code
-        qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=10,
-            border=4,
-        )
-        qr.add_data(payment_url)
-        qr.make(fit=True)
-        img = qr.make_image(fill_color="black", back_color="white")
-        
-        # Convert to base64
-        buffered = BytesIO()
-        img.save(buffered, format="PNG")
-        img_str = base64.b64encode(buffered.getvalue()).decode()
-        
-        # Store transaction
-        expires_at = datetime.now() + timedelta(minutes=5)
-        # transactions[transaction_id] = {
-        #     "status": "PENDING",
-        #     "amount": amount,
-        #     "expires_at": expires_at.isoformat()
-        # }
-        
-        return jsonify({
-            "success": True,
-            "qr_code": img_str,
-            "amount": amount,
-            "transaction_id": transaction_id,
-            "expires_at": expires_at.isoformat(),
-            "upi_uri": payment_url
-        })
-        
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)})
